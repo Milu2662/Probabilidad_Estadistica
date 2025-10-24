@@ -1,0 +1,275 @@
+# ============================================
+# 6 EJERCICIOS PROPUESTOS EN CLASE
+# Autora: Luisa Fernanda Velasco López
+# Código: 20212020106
+# Materia: Probabilidad y Estadística
+# ============================================
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import binom, norm
+from math import comb, perm, factorial
+import pandas as pd
+
+print("="*70)
+print("6 EJERCICIOS PROPUESTOS EN CLASE")
+print("Luisa Fernanda Velasco López - 20212020106")
+print("="*70)
+
+# ============================================
+# EJERCICIO 1: Selección de estudiantes
+# ============================================
+print("\n" + "="*70)
+print("EJERCICIO 1: Selección de 3 estudiantes")
+print("="*70)
+print("Salón: 8 Electrónica, 3 Sistemas, 9 Industrial (Total: 20)")
+
+n_elec, n_sist, n_ind = 8, 3, 9
+n_total = n_elec + n_sist + n_ind
+
+# I. 3 estudiantes de electrónica (sin reemplazo)
+prob_1 = comb(n_elec, 3) / comb(n_total, 3)
+print(f"\nI. P(3 de electrónica) = {prob_1:.4f} = {prob_1*100:.2f}%")
+
+# II. 3 estudiantes de sistemas
+prob_2 = comb(n_sist, 3) / comb(n_total, 3)
+print(f"II. P(3 de sistemas) = {prob_2:.4f} = {prob_2*100:.2f}%")
+
+# III. 2 de electrónica y 1 de sistemas
+prob_3 = (comb(n_elec, 2) * comb(n_sist, 1)) / comb(n_total, 3)
+print(f"III. P(2 electrónica, 1 sistemas) = {prob_3:.4f} = {prob_3*100:.2f}%")
+
+# IV. Al menos 1 de sistemas
+prob_sin_sistemas = comb(n_elec + n_ind, 3) / comb(n_total, 3)
+prob_4 = 1 - prob_sin_sistemas
+print(f"IV. P(al menos 1 de sistemas) = {prob_4:.4f} = {prob_4*100:.2f}%")
+
+# V. 1 de cada carrera
+prob_5 = (n_elec * n_sist * n_ind) / comb(n_total, 3)
+print(f"V. P(1 de cada carrera) = {prob_5:.4f} = {prob_5*100:.2f}%")
+
+# VI. Orden específico: Electrónica-Sistemas-Industrial (con reemplazo)
+prob_6_con = (n_elec/n_total) * (n_sist/n_total) * (n_ind/n_total)
+print(f"VI. P(orden E-S-I con reemplazo) = {prob_6_con:.4f} = {prob_6_con*100:.2f}%")
+
+# Gráfica comparativa
+labels = ['3 Elec', '3 Sist', '2E+1S', '≥1 Sist', '1 c/u', 'Orden E-S-I']
+probs = [prob_1, prob_2, prob_3, prob_4, prob_5, prob_6_con]
+
+plt.figure(figsize=(10, 6))
+plt.bar(labels, probs, color=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'])
+plt.ylabel('Probabilidad')
+plt.title('Ejercicio 1: Probabilidades de selección de estudiantes')
+plt.ylim(0, max(probs)*1.2)
+for i, v in enumerate(probs):
+    plt.text(i, v + 0.01, f'{v:.4f}', ha='center', fontweight='bold')
+plt.grid(axis='y', alpha=0.3)
+plt.tight_layout()
+plt.savefig('ejercicio1_estudiantes.png', dpi=300, bbox_inches='tight')
+print("\n✓ Gráfica guardada: ejercicio1_estudiantes.png")
+
+# ============================================
+# EJERCICIO 2: Ordenamiento de libros
+# ============================================
+print("\n" + "="*70)
+print("EJERCICIO 2: Ordenamiento de libros")
+print("="*70)
+print("4 Ingeniería, 6 Inglés, 2 Física")
+
+n_ing, n_eng, n_fis = 4, 6, 2
+total_libros = n_ing + n_eng + n_fis
+
+# a. Todos los libros de cada asignatura juntos
+bloques = 3
+perm_bloques = factorial(bloques)
+perm_ing = factorial(n_ing)
+perm_eng = factorial(n_eng)
+perm_fis = factorial(n_fis)
+formas_a = perm_bloques * perm_ing * perm_eng * perm_fis
+print(f"\na. Todos juntos por asignatura: {formas_a:,} formas")
+
+# b. Solo libros de ingeniería juntos
+total_sin_restriccion = factorial(total_libros)
+formas_b = total_sin_restriccion / factorial(n_ing) * factorial(n_ing)
+# Mejor cálculo: tratar bloque ingeniería como 1 unidad
+elementos = total_libros - n_ing + 1  # 9-4+1 = 6 elementos a ordenar
+formas_b = factorial(elementos) * factorial(n_ing)
+print(f"b. Solo Ingeniería juntos: {int(formas_b):,} formas")
+
+# ============================================
+# EJERCICIO 3: Formación de comités
+# ============================================
+print("\n" + "="*70)
+print("EJERCICIO 3: Comité de 2 ingenieros y 3 abogados")
+print("="*70)
+print("5 Ingenieros, 7 Abogados")
+
+n_ing_disp, n_abo_disp = 5, 7
+
+# a. Cualquier ingeniero y abogado puede pertenecer
+comite_a = comb(n_ing_disp, 2) * comb(n_abo_disp, 3)
+print(f"\na. Cualquiera puede pertenecer: {comite_a} formas")
+
+# b. Un abogado determinado debe pertenecer
+comite_b = comb(n_ing_disp, 2) * comb(n_abo_disp - 1, 2)
+print(f"b. 1 abogado específico incluido: {comite_b} formas")
+
+# c. Un ingeniero determinado NO puede pertenecer
+comite_c = comb(n_ing_disp - 1, 2) * comb(n_abo_disp, 3)
+print(f"c. 1 ingeniero específico excluido: {comite_c} formas")
+
+# Gráfica comparativa
+plt.figure(figsize=(8, 6))
+casos = ['Cualquiera', 'Abo. fijo', 'Ing. excluido']
+valores = [comite_a, comite_b, comite_c]
+plt.bar(casos, valores, color=['#2ca02c', '#ff7f0e', '#d62728'])
+plt.ylabel('Número de formas')
+plt.title('Ejercicio 3: Formación de comités')
+for i, v in enumerate(valores):
+    plt.text(i, v + 5, str(v), ha='center', fontweight='bold')
+plt.grid(axis='y', alpha=0.3)
+plt.tight_layout()
+plt.savefig('ejercicio3_comites.png', dpi=300, bbox_inches='tight')
+print("\n✓ Gráfica guardada: ejercicio3_comites.png")
+
+# ============================================
+# EJERCICIO 4: Ordenamiento de estudiantes
+# ============================================
+print("\n" + "="*70)
+print("EJERCICIO 4: Ordenamiento de 10 estudiantes en fila")
+print("="*70)
+print("5 Electrónica, 2 Industrial, 3 Sistemas (no se distinguen entre sí)")
+
+n_e4, n_i4, n_s4 = 5, 2, 3
+total_e4 = n_e4 + n_i4 + n_s4
+
+# Permutaciones con repetición
+formas_orden = factorial(total_e4) // (factorial(n_e4) * factorial(n_i4) * factorial(n_s4))
+print(f"\nFormas de ordenar (estudiantes de misma carrera indistinguibles): {formas_orden:,}")
+
+# ============================================
+# EJERCICIO 5: Lanzamiento de dados
+# ============================================
+print("\n" + "="*70)
+print("EJERCICIO 5: Probabilidades con dados")
+print("="*70)
+
+# a. No obtener 7 u 11 en ninguno de 2 lanzamientos
+casos_7 = 6  # (1,6), (2,5), (3,4), (4,3), (5,2), (6,1)
+casos_11 = 2  # (5,6), (6,5)
+casos_no_deseados = casos_7 + casos_11
+total_casos = 36
+prob_7_o_11 = casos_no_deseados / total_casos
+prob_no_7_ni_11_un_lanz = 1 - prob_7_o_11
+prob_5a = prob_no_7_ni_11_un_lanz ** 2
+print(f"\na. P(no obtener 7 u 11 en 2 lanzamientos) = {prob_5a:.4f} = {prob_5a*100:.2f}%")
+
+# b. Obtener tres veces el 6 en 5 lanzamientos
+n_lanz = 5
+k_exitos = 3
+p_sacar_6 = 1/6
+prob_5b = binom.pmf(k_exitos, n_lanz, p_sacar_6)
+print(f"b. P(sacar 6 exactamente 3 veces en 5 lanzamientos) = {prob_5b:.5f} = {prob_5b*100:.3f}%")
+
+# Gráfica de distribución binomial para 5b
+k_values = np.arange(0, n_lanz + 1)
+pmf_values = binom.pmf(k_values, n_lanz, p_sacar_6)
+
+plt.figure(figsize=(10, 6))
+plt.bar(k_values, pmf_values, color='lightblue', edgecolor='black', alpha=0.7)
+plt.bar(k_exitos, pmf_values[k_exitos], color='red', edgecolor='black', label=f'k={k_exitos}')
+plt.xlabel('Número de veces que sale 6')
+plt.ylabel('Probabilidad')
+plt.title('Ejercicio 5b: Distribución Binomial (n=5, p=1/6)')
+plt.legend()
+plt.grid(axis='y', alpha=0.3)
+plt.tight_layout()
+plt.savefig('ejercicio5_dados.png', dpi=300, bbox_inches='tight')
+print("\n✓ Gráfica guardada: ejercicio5_dados.png")
+
+# ============================================
+# EJERCICIO 6: Control de calidad (memorias)
+# ============================================
+print("\n" + "="*70)
+print("EJERCICIO 6: Control de calidad - Memorias defectuosas")
+print("="*70)
+print("Producción diaria: 12,000 memorias")
+print("Defectuosas: 3%")
+print("Muestra: 600 memorias")
+
+n_muestra = 600
+p_defecto = 0.03
+k_defectos = 12
+
+# Distribución binomial exacta
+prob_exacta = binom.pmf(k_defectos, n_muestra, p_defecto)
+print(f"\nP(exactamente {k_defectos} defectuosas) [Binomial exacta] = {prob_exacta:.5f} = {prob_exacta*100:.3f}%")
+
+# Aproximación normal
+mu = n_muestra * p_defecto
+sigma = np.sqrt(n_muestra * p_defecto * (1 - p_defecto))
+print(f"\nAproximación Normal: μ = {mu:.2f}, σ = {sigma:.4f}")
+
+# Con corrección de continuidad
+z1 = (k_defectos - 0.5 - mu) / sigma
+z2 = (k_defectos + 0.5 - mu) / sigma
+prob_normal = norm.cdf(z2) - norm.cdf(z1)
+print(f"P(exactamente {k_defectos} defectuosas) [Aprox. Normal] = {prob_normal:.5f} = {prob_normal*100:.3f}%")
+
+# Gráfica comparativa binomial vs normal
+x_range = np.arange(0, 40)
+pmf_bin = binom.pmf(x_range, n_muestra, p_defecto)
+x_cont = np.linspace(0, 40, 200)
+pdf_norm = norm.pdf(x_cont, mu, sigma)
+
+plt.figure(figsize=(12, 6))
+plt.bar(x_range, pmf_bin, alpha=0.6, color='skyblue', label='Binomial', width=0.8)
+plt.plot(x_cont, pdf_norm, 'r-', linewidth=2, label='Normal (aprox.)')
+plt.axvline(k_defectos, color='green', linestyle='--', linewidth=2, label=f'k={k_defectos}')
+plt.xlabel('Número de memorias defectuosas')
+plt.ylabel('Densidad/Probabilidad')
+plt.title('Ejercicio 6: Distribución Binomial vs Aproximación Normal')
+plt.legend()
+plt.grid(alpha=0.3)
+plt.tight_layout()
+plt.savefig('ejercicio6_control_calidad.png', dpi=300, bbox_inches='tight')
+print("\n✓ Gráfica guardada: ejercicio6_control_calidad.png")
+
+# ============================================
+# RESUMEN FINAL
+# ============================================
+print("\n" + "="*70)
+print("RESUMEN DE RESULTADOS")
+print("="*70)
+
+resultados = {
+    'Ejercicio': [
+        'Ej 1: 3 Electrónica',
+        'Ej 1: Al menos 1 Sistemas',
+        'Ej 2: Libros ordenados (todos juntos)',
+        'Ej 3: Comités (cualquiera)',
+        'Ej 4: Ordenar estudiantes',
+        'Ej 5a: No sacar 7 u 11 (2 lanz)',
+        'Ej 5b: Sacar 6 tres veces (5 lanz)',
+        'Ej 6: 12 defectuosas (Binomial)',
+        'Ej 6: 12 defectuosas (Normal aprox)'
+    ],
+    'Resultado': [
+        f'{prob_1:.4f}',
+        f'{prob_4:.4f}',
+        f'{formas_a:,}',
+        f'{comite_a}',
+        f'{formas_orden:,}',
+        f'{prob_5a:.4f}',
+        f'{prob_5b:.5f}',
+        f'{prob_exacta:.5f}',
+        f'{prob_normal:.5f}'
+    ]
+}
+
+df_resumen = pd.DataFrame(resultados)
+print(df_resumen.to_string(index=False))
+
+print("\n" + "="*70)
+print("✓ PROGRAMA COMPLETADO - Todas las gráficas generadas")
+print("="*70)
