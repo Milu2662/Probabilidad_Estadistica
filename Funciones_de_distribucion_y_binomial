@@ -1,0 +1,240 @@
+# ============================================
+# 2 EJERCICIOS: FUNCIONES DE DISTRIBUCIÓN Y ACUMULATIVA
+# Autora: Luisa Fernanda Velasco López
+# Código: 20212020106
+# Materia: Probabilidad y Estadística
+# ============================================
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import integrate
+from scipy.stats import norm
+import pandas as pd
+
+print("="*80)
+print("FUNCIONES DE DISTRIBUCIÓN Y ACUMULATIVA")
+print("Luisa Fernanda Velasco López - 20212020106")
+print("="*80)
+
+# ============================================
+# EJERCICIO 1: CASO CONTINUO
+# f(x) = k*x^2, 0 ≤ x ≤ 6
+# ============================================
+print("\n" + "="*80)
+print("EJERCICIO 1: FUNCIÓN DE DENSIDAD CONTINUA")
+print("="*80)
+print("f(x) = k*x², 0 ≤ x ≤ 6")
+
+# Paso 1: Encontrar k para que integre a 1
+def f_sin_k(x):
+    return x**2
+
+integral_sin_k, _ = integrate.quad(f_sin_k, 0, 6)
+k = 1 / integral_sin_k
+print(f"\n∫₀⁶ x² dx = {integral_sin_k}")
+print(f"k = 1/{integral_sin_k} = {k}")
+print(f"k = 3/216 = 1/72")
+
+# Función de densidad
+def f(x):
+    if 0 <= x <= 6:
+        return (3/216) * x**2
+    return 0
+
+# Función acumulativa F(x)
+def F(x):
+    if x < 0:
+        return 0
+    elif 0 <= x <= 6:
+        return (x**3) / 216
+    else:
+        return 1
+
+# Verificación
+print(f"\nVerificación: F(6) = {F(6)}")
+
+# Calcular P(1 < X < 5)
+prob_1_5 = F(5) - F(1)
+print(f"\nP(1 < X < 5) = F(5) - F(1)")
+print(f"P(1 < X < 5) = {F(5):.4f} - {F(1):.4f} = {prob_1_5:.4f}")
+
+# Valores calculados manualmente según PDF
+print(f"\nVerificación manual:")
+print(f"F(5) = 5³/216 = 125/216 = {125/216:.4f}")
+print(f"F(1) = 1³/216 = 1/216 = {1/216:.4f}")
+print(f"P(1 < X < 5) = 124/216 = {124/216:.4f}")
+
+# Gráficas
+x_vals = np.linspace(-0.5, 7, 1000)
+f_vals = np.array([f(x) for x in x_vals])
+F_vals = np.array([F(x) for x in x_vals])
+
+fig, axes = plt.subplots(2, 1, figsize=(12, 10))
+
+# Gráfica de f(x) - Función de densidad
+axes[0].plot(x_vals, f_vals, 'b-', linewidth=2, label='f(x) = (3/216)x²')
+axes[0].fill_between(x_vals, f_vals, where=((x_vals>=1) & (x_vals<=5)), 
+                      alpha=0.3, color='lightblue', label='P(1 < X < 5)')
+axes[0].axhline(y=0, color='k', linewidth=0.5)
+axes[0].axvline(x=0, color='k', linewidth=0.5)
+axes[0].axvline(x=1, color='r', linestyle='--', alpha=0.5)
+axes[0].axvline(x=5, color='r', linestyle='--', alpha=0.5)
+axes[0].set_xlabel('x')
+axes[0].set_ylabel('f(x)')
+axes[0].set_title('Función de Densidad de Probabilidad f(x)')
+axes[0].legend()
+axes[0].grid(True, alpha=0.3)
+axes[0].set_xlim(-0.5, 7)
+
+# Gráfica de F(x) - Función acumulativa
+axes[1].plot(x_vals, F_vals, 'r-', linewidth=2, label='F(x) = x³/216')
+axes[1].axhline(y=0, color='k', linewidth=0.5)
+axes[1].axhline(y=1, color='k', linewidth=0.5, linestyle='--')
+axes[1].axvline(x=0, color='k', linewidth=0.5)
+axes[1].axvline(x=6, color='g', linestyle='--', alpha=0.5)
+axes[1].scatter([1, 5], [F(1), F(5)], color='red', s=100, zorder=5)
+axes[1].annotate(f'F(1) = {F(1):.4f}', xy=(1, F(1)), xytext=(1.5, F(1)-0.1),
+                arrowprops=dict(arrowstyle='->', color='red'))
+axes[1].annotate(f'F(5) = {F(5):.4f}', xy=(5, F(5)), xytext=(4, F(5)+0.1),
+                arrowprops=dict(arrowstyle='->', color='red'))
+axes[1].set_xlabel('x')
+axes[1].set_ylabel('F(x)')
+axes[1].set_title('Función Acumulativa de Probabilidad F(x)')
+axes[1].legend()
+axes[1].grid(True, alpha=0.3)
+axes[1].set_xlim(-0.5, 7)
+axes[1].set_ylim(-0.1, 1.1)
+
+plt.tight_layout()
+plt.savefig('ejercicio1_continua.png', dpi=300, bbox_inches='tight')
+print("\n✓ Gráfica guardada: ejercicio1_continua.png")
+
+# Tabla de valores
+x_tabla = np.linspace(0, 6, 13)
+tabla_continua = pd.DataFrame({
+    'x': x_tabla,
+    'f(x)': [f(x) for x in x_tabla],
+    'F(x)': [F(x) for x in x_tabla]
+})
+print("\nTabla de valores:")
+print(tabla_continua.to_string(index=False))
+
+# ============================================
+# EJERCICIO 2: CASO DISCRETO (Lanzamiento de dados)
+# ============================================
+print("\n" + "="*80)
+print("EJERCICIO 2: FUNCIÓN DE PROBABILIDAD DISCRETA (Suma de dos dados)")
+print("="*80)
+
+# Crear tabla de probabilidades para suma de dos dados
+sumas_posibles = {}
+for i in range(1, 7):
+    for j in range(1, 7):
+        suma = i + j
+        if suma in sumas_posibles:
+            sumas_posibles[suma] += 1
+        else:
+            sumas_posibles[suma] = 1
+
+# Función de masa de probabilidad
+x_discreto = sorted(sumas_posibles.keys())
+pmf = {x: sumas_posibles[x]/36 for x in x_discreto}
+
+print("\nFunción de masa de probabilidad P(X=x):")
+for x in x_discreto:
+    print(f"P(X={x:>2}) = {sumas_posibles[x]:>2}/36 = {pmf[x]:.4f}")
+
+# Función acumulativa discreta
+def F_discreta(x):
+    if x < 2:
+        return 0
+    elif x >= 12:
+        return 1
+    else:
+        return sum(pmf[k] for k in x_discreto if k <= x)
+
+# Calcular P(4 ≤ X ≤ 8) según el PDF
+prob_4_8 = sum(pmf[x] for x in range(5, 9))  # P(5) + P(6) + P(7) + P(8)
+print(f"\nP(4 < X < 9) = P(5) + P(6) + P(7) + P(8)")
+print(f"P(4 < X < 9) = {pmf[5]:.4f} + {pmf[6]:.4f} + {pmf[7]:.4f} + {pmf[8]:.4f}")
+print(f"P(4 < X < 9) = {prob_4_8:.4f} = {prob_4_8*36:.0f}/36")
+
+# Gráficas para caso discreto
+fig, axes = plt.subplots(2, 1, figsize=(12, 10))
+
+# Gráfica de P(X) - Función de masa
+axes[0].bar(x_discreto, [pmf[x] for x in x_discreto], 
+           color='steelblue', edgecolor='black', alpha=0.7)
+# Resaltar el intervalo 4 < X < 9
+colores = ['red' if 5 <= x <= 8 else 'steelblue' for x in x_discreto]
+axes[0].bar(x_discreto, [pmf[x] for x in x_discreto], 
+           color=colores, edgecolor='black', alpha=0.7)
+axes[0].set_xlabel('Suma de dados (x)')
+axes[0].set_ylabel('P(X = x)')
+axes[0].set_title('Función de Masa de Probabilidad P(X)')
+axes[0].grid(axis='y', alpha=0.3)
+axes[0].set_xticks(x_discreto)
+
+# Gráfica de F(X) - Función acumulativa
+x_acum = np.arange(0, 14, 0.1)
+F_acum = [F_discreta(x) for x in x_acum]
+axes[1].plot(x_acum, F_acum, 'r-', linewidth=2, label='F(x)', drawstyle='steps-post')
+axes[1].scatter(x_discreto, [F_discreta(x) for x in x_discreto], 
+               color='red', s=80, zorder=5)
+axes[1].axhline(y=1, color='k', linewidth=0.5, linestyle='--')
+axes[1].set_xlabel('x')
+axes[1].set_ylabel('F(x)')
+axes[1].set_title('Función Acumulativa de Probabilidad F(x)')
+axes[1].legend()
+axes[1].grid(True, alpha=0.3)
+axes[1].set_xlim(1, 13)
+axes[1].set_ylim(-0.05, 1.05)
+
+plt.tight_layout()
+plt.savefig('ejercicio2_discreta.png', dpi=300, bbox_inches='tight')
+print("\n✓ Gráfica guardada: ejercicio2_discreta.png")
+
+# Tabla de valores discretos
+F_vals_disc = [F_discreta(x) for x in x_discreto]
+tabla_discreta = pd.DataFrame({
+    'x': x_discreto,
+    'P(X=x)': [pmf[x] for x in x_discreto],
+    'F(x)': F_vals_disc
+})
+print("\nTabla de valores discretos:")
+print(tabla_discreta.to_string(index=False))
+
+# ============================================
+# RESUMEN COMPARATIVO
+# ============================================
+print("\n" + "="*80)
+print("RESUMEN COMPARATIVO")
+print("="*80)
+
+resumen = {
+    'Característica': ['Tipo', 'Dominio', 'f(x) o P(X=x)', 'Normalización', 'Probabilidad específica'],
+    'Continua (Ej 1)': [
+        'Continua',
+        '0 ≤ x ≤ 6',
+        'f(x) = (3/216)x²',
+        f'∫f(x)dx = {F(6):.1f}',
+        f'P(1<X<5) = {prob_1_5:.4f}'
+    ],
+    'Discreta (Ej 2)': [
+        'Discreta',
+        'x ∈ {2,3,...,12}',
+        'Tabla de prob.',
+        f'Σ P(X=x) = {sum(pmf.values()):.1f}',
+        f'P(4<X<9) = {prob_4_8:.4f}'
+    ]
+}
+
+df_resumen = pd.DataFrame(resumen)
+print(df_resumen.to_string(index=False))
+
+print("\n" + "="*80)
+print("✓ PROGRAMA COMPLETADO")
+print("Archivos generados:")
+print("  - ejercicio1_continua.png")
+print("  - ejercicio2_discreta.png")
+print("="*80)
