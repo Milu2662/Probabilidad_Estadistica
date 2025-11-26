@@ -1,0 +1,55 @@
+import random
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Generar 60 datos aleatorios entre 10 y 99
+datos = [random.randint(10, 99) for _ in range(60)]
+
+# Calcular valores básicos
+valor_min = min(datos)
+valor_max = max(datos)
+A = valor_max - valor_min  # Amplitud total
+K = int(valor_max / 2)     # Número de clases
+H = A / K                  # Extensión de intervalo
+
+print(f"Valor mínimo: {valor_min}")
+print(f"Valor máximo: {valor_max}")
+print(f"Amplitud total (A): {A}")
+print(f"Número de clases (K): {K}")
+print(f"Extensión de intervalo (H): {H:.2f}")
+
+# Crear intervalos de clase
+intervalos = []
+inicio = valor_min
+for i in range(K):
+    fin = inicio + H
+    intervalos.append((inicio, fin))
+    inicio = fin
+
+# Calcular frecuencias
+frecuencias = []
+for inicio, fin in intervalos:
+    fi = sum(1 for x in datos if inicio <= x < fin)  # frecuencia absoluta
+    frecuencias.append(fi)
+
+# Construir DataFrame de la tabla de frecuencias
+tabla = pd.DataFrame({
+    'Intervalo': [f'{round(inicio, 2)} - {round(fin, 2)}' for inicio, fin in intervalos],
+    'Frecuencia Absoluta': frecuencias,
+})
+
+# Calcular las demás columnas
+tabla['Frecuencia Relativa'] = tabla['Frecuencia Absoluta'] / len(datos)
+tabla['Porcentaje'] = tabla['Frecuencia Relativa'] * 100
+tabla['Frecuencia Acumulada Absoluta'] = tabla['Frecuencia Absoluta'].cumsum()
+tabla['Frecuencia Acumulada Relativa'] = tabla['Frecuencia Relativa'].cumsum()
+
+# Mostrar tabla
+print(tabla.to_string(index=False))
+
+# Crear histograma
+plt.hist(datos, bins=K, edgecolor='black')
+plt.title('Histograma de datos aleatorios')
+plt.xlabel('Intervalos de clase')
+plt.ylabel('Frecuencia')
+plt.show()
