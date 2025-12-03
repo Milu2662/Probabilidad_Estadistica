@@ -1,0 +1,54 @@
+# muestreo_teorico.py
+import random
+
+# Cada estudiante tiene un conjunto de "categorías" presentes
+poblacion = [
+    {"id": 1, "categorias": {"carga", "dificultad", "tiempo_libre"}},
+    {"id": 2, "categorias": {"carga", "trabajo", "fatiga"}},
+    {"id": 3, "categorias": {"carga", "trabajo", "apoyo_familiar"}},
+    {"id": 4, "categorias": {"carga", "psicologico", "salud_mental"}},
+    {"id": 5, "categorias": {"carga", "dificultad", "psicologico"}},
+    {"id": 6, "categorias": {"trabajo", "tiempo_libre"}},
+    {"id": 7, "categorias": {"carga", "salud_mental"}},
+    {"id": 8, "categorias": {"trabajo", "apoyo_familiar", "psicologico"}},
+]
+
+random.seed(42)
+
+categorias_descubiertas = set()
+orden_muestreo = []
+
+print("=== Simulación de muestreo teórico ===\n")
+
+for ronda in range(1, 6):  # hasta 5 rondas máx.
+    print(f"Ronda {ronda}")
+    # seleccionar aleatoriamente 1 o 2 participantes nuevos
+    candidatos = [e for e in poblacion if e["id"] not in orden_muestreo]
+    if not candidatos:
+        print("No hay más participantes disponibles.\n")
+        break
+
+    n_seleccionar = min(2, len(candidatos))
+    seleccionados = random.sample(candidatos, n_seleccionar)
+
+    nuevas_cats_esta_ronda = set()
+
+    for est in seleccionados:
+        orden_muestreo.append(est["id"])
+        nuevas = est["categorias"] - categorias_descubiertas
+        nuevas_cats_esta_ronda |= nuevas
+        categorias_descubiertas |= est["categorias"]
+
+        print(f"  Entrevista a estudiante {est['id']}, "
+              f"categorías: {est['categorias']}")
+
+    print(f"  Nuevas categorías en esta ronda: {nuevas_cats_esta_ronda}")
+    print(f"  Categorías acumuladas hasta ahora: {categorias_descubiertas}\n")
+
+    if not nuevas_cats_esta_ronda:
+        print(">>> Saturación teórica alcanzada: "
+              "no emergen categorías nuevas.\n")
+        break
+
+print("Orden final de muestreo:", orden_muestreo)
+print("Categorías finales:", categorias_descubiertas)
